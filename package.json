@@ -1,0 +1,35 @@
+{
+  "name": "menu-discord-bot",
+  "version": "1.0.0",
+  "description": "A simple discord bot that shows the ESTGV menu",
+  "main": "dist/app.js",
+  "scripts": {
+    "clean": "rm -rf node_modules/ && rm -rf dist/",
+    "compile": "tsc -p . && cp src/config.env dist/",
+    "start": "node dist/app.js",
+    "dev": "nodemon src/app.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Guergeiro/menu-discord-bot.git"
+  },
+  "author": "Breno Salles",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Guergeiro/menu-discord-bot/issues"
+  },
+  "homepage": "https://github.com/Guergeiro/menu-discord-bot#readme",
+  "dependencies": {
+    "csv-parser": "^2.3.2",
+    "discord.js": "^11.5.1",
+    "dotenv": "^8.2.0"
+  },
+  "devDependencies": {
+    "@types/dotenv": "^8.2.0",
+    "@types/node": "^13.7.0",
+    "nodemon": "^2.0.2",
+    "ts-node": "^8.6.2",
+    "typescript": "^3.7.5"
+  }
+}
