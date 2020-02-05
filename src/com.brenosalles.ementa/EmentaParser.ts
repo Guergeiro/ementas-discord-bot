@@ -1,13 +1,11 @@
 import {
-    createReadStream
-} from "fs";
-import {
     Ementa,
     EmentaType
 } from "./Ementa";
+import xlsx from "xlsx";
 
-const parseMonthToNumber = (month: string): number => {
-    switch (month.toLowerCase()) {
+const parseMonthToNumber = (stringMonth: string): number => {
+    switch (stringMonth.toLowerCase()) {
         case "janeiro":
             return 0;
         case "fevereiro":
@@ -35,15 +33,15 @@ const parseMonthToNumber = (month: string): number => {
     }
 }
 
-const parseCsvDate = (csvData: string): Date => {
-    const fullDate: string = csvData.split("\n")[1];
+const parseDate = (stringDate: string): Date => {
+    const fullDate: string = stringDate.split("\n")[1];
     const day: string = fullDate.split("/")[0];
     const month: string = fullDate.split("/")[1];
     const date = new Date(new Date().getFullYear(), parseMonthToNumber(month), +day);
     return date;
 }
 
-const parseCsvFood = (csvData: string): {
+const parseFood = (csvData: string): {
     sopa: string,
     carne: string,
     peixe: string,
@@ -71,59 +69,72 @@ const parseCsvFood = (csvData: string): {
     };
 }
 
-const parseCsvMenu = (entry: Array < string > ): Ementa => {
-    const ementa = new Ementa(
-        parseCsvDate(entry[0]),
-        EmentaType.LUNCH,
-        parseCsvFood(entry[2] || entry[3]).sopa,
-        parseCsvFood(entry[2] || entry[3]).carne,
-        parseCsvFood(entry[2] || entry[3]).peixe,
-        parseCsvFood(entry[2] || entry[3]).dieta,
-        parseCsvFood(entry[2] || entry[3]).vegetariano
-    );
-    return ementa;
+const insertIntoMenu = (ementas: Array < Ementa > , value: Ementa) => {
+    // Gets already inserted items with same date
+    const temp = ementas.filter(ementa => ementa.getDate().getTime() == value.getDate().getTime());
+    if (temp.length == 1) {
+        value.setType(EmentaType.DINNER);
+    }
+    ementas.push(value);
 }
 
-const parseEmenta = (url: string): Promise < Array < Ementa >> => {
-    return new Promise < Array < Ementa >> ((resolve, reject) => {
-        const output: Array < Ementa > = [];
-        const readStream = createReadStream(`${url}`);
+const parseEmenta = (fileUrl: string) => {
+    const ementas: Array < Ementa > = [];
 
-        readStream.pipe(csv()).on("data", (entry) => {
-            console.log(entry);
-            if (entry[0].length == 0) {
-                return;
+    // Open Workbook
+    const workbook = xlsx.readFile(`${fileUrl}`);
+
+    // Loop over each page
+    for (const pageName of workbook.SheetNames) {
+        const worksheet = workbook.Sheets[pageName];
+
+        // Loop over each cell
+        for (const dateCell in worksheet) {
+
+            // Fetch value
+            const dateCellValue = worksheet[dateCell]["v"] || worksheet[dateCell].v;
+
+            // Ignore non string values
+            if (typeof dateCellValue != "string") {
+                continue;
             }
-            if (entry[0].indexOf("Feira") == -1 && entry[0].indexOf("Sábado") == -1 && entry[0].indexOf("Domingo") == -1) {
-                return;
+
+            // Ignore non date values
+            if (dateCellValue.indexOf("Feira") == -1 && dateCellValue.indexOf("Sábado") == -1 && dateCellValue.indexOf("Domingo") == -1) {
+                continue;
             }
-            const ementa: Ementa = parseCsvMenu(entry);
-            const result = output.filter(entry => entry.getDate().getTime() == ementa.getDate().getTime());
-            if (result.length == 1) {
-                ementa.setType(EmentaType.DINNER);
+
+            // Gets the position of the food
+            const menuCellC = (dateCell.slice(0)).replace("A", "C");
+            const menuCellD = (dateCell.slice(0)).replace("A", "D");
+
+            const menuCell = worksheet[menuCellC] || worksheet[menuCellD];
+
+            // Ignore non string cells
+            if (typeof worksheet == "undefined") {
+                continue;
             }
-            output.push(ementa);
-        });
-        readStream.on("error", e => {
-            reject(e);
-        })
-        return readStream.on("close", () => {
-            resolve(output);
-        });
 
-    });
-}
+            // Get the value
+            const menuCellValue = menuCell["v"] || menuCell.v;
 
-const testEmenta = (fileUrl: string) => {
+            // Create the menu
+            const ementa = new Ementa(
+                parseDate(dateCellValue),
+                EmentaType.LUNCH,
+                parseFood(menuCellValue).sopa.trim(),
+                parseFood(menuCellValue).carne.trim(),
+                parseFood(menuCellValue).peixe.trim(),
+                parseFood(menuCellValue).dieta.trim(),
+                parseFood(menuCellValue).vegetariano.trim()
+            );
 
-        const readStream = createReadStream(`${fileUrl}`);
+            insertIntoMenu(ementas, ementa);
+        }
 
-         readStream.pipe(csv()).on("data", entry => {
-             console.log(entry)
-
-        });
+    }
+    return ementas;
 }
 export {
-    parseEmenta,
-    testEmenta
+    parseEmenta
 }

@@ -1,13 +1,13 @@
 import dotenv from "dotenv";
 import {
-    Client
+    Client,
+    Message
 } from "discord.js";
 import {
     Ementa
 } from "./com.brenosalles.ementa/Ementa";
 import {
-    parseEmenta,
-    testEmenta
+    parseEmenta
 } from "./com.brenosalles.ementa/EmentaParser";
 import {
     downloadFile,
@@ -18,27 +18,27 @@ import {
     downloadEmentaPdf
 } from "./com.brenosalles.ementa/EmentaDownloader";
 
-const sleep = (n:number) => {
+const sleep = (n: number) => {
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, n);
 }
 
-dotenv.config({path: `${__dirname}/config.env`});
+const sendEmentasToChannel = (ementas: Array < Ementa > , message: Message) => {
+    if (ementas.length == 0) {
+        message.channel.send(`No menus available!`);
+        return;
+    }
+    for (const ementa of ementas) {
+        message.channel.send(ementa.toString());
+    }
+
+}
+
+dotenv.config({
+    path: `${__dirname}/config.env`
+});
 
 let ementas: Array < Ementa > = [];
 const client: Client = new Client();
-
-const test = async () => {
-    let jobDetails = await startConversionJob(`${__dirname}/ESTGV.pdf`);
-    do {
-        jobDetails = await checkConversionJob(jobDetails["id"]);
-        sleep(5);
-    } while(jobDetails["status"] != "successful");
-
-    for (const file of jobDetails["target_files"]) {
-        console.log(file)
-        await downloadFile(file["id"], `${__dirname}/${file["name"]}`);
-    }
-}
 
 client.once("ready", async () => {
     const allFiles = await getAllFiles();
@@ -61,7 +61,7 @@ client.once("ready", async () => {
         console.log(await downloadFile(file["id"], `${__dirname}/${file["name"]}`));
     }
 
-   // testEmenta(`${__dirname}/ESTGV.csv`);
+    ementas = parseEmenta(`${__dirname}/ESTGV.xlsx`);
     console.log("ready!");
 });
 
@@ -90,9 +90,7 @@ client.on("message", message => {
                 }
                 return ementa;
             });
-            for (const ementa of todayEmentas) {
-                message.channel.send(ementa.toString());
-            }
+            sendEmentasToChannel(todayEmentas, message);
             break;
         case "tomorrow":
             const tomorrow: Date = new Date(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate() + 1);
@@ -105,9 +103,7 @@ client.on("message", message => {
                 }
                 return ementa;
             });
-            for (const ementa of tomorrowEmentas) {
-                message.channel.send(ementa.toString());
-            }
+            sendEmentasToChannel(tomorrowEmentas, message);
             break;
         case "day":
             if (args.length == 0) {
@@ -126,9 +122,7 @@ client.on("message", message => {
                 }
                 return ementa;
             });
-            for (const ementa of specificEmentas) {
-                message.channel.send(ementa.toString());
-            }
+            sendEmentasToChannel(specificEmentas, message);
             break;
     }
 });
