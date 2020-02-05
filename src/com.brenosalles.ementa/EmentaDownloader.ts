@@ -26,7 +26,7 @@ const downloadFile = (fileId: number, fileDest: string): Promise < string > => {
         const headers = {
             "Authorization": "Basic " + Buffer.from(`${process.env.API_KEY}:`).toString("base64")
         }
-        const res = await fetch(`https://sandbox.zamzar.com/v1/files/${fileId}/content`, {
+        const res = await fetch(`https://${process.env.API_URL_PREFIX}.zamzar.com/v1/files/${fileId}/content`, {
             headers: headers
         });
         const writeStream = createWriteStream(`${fileDest}`);
@@ -51,7 +51,7 @@ const startConversionJob = async (fileUrl: string): Promise < any > => {
         "Authorization": "Basic " + Buffer.from(`${process.env.API_KEY}:`).toString("base64")
     }
 
-    const response = await fetch(`https://sandbox.zamzar.com/v1/jobs/`, {
+    const response = await fetch(`https://${process.env.API_URL_PREFIX}.zamzar.com/v1/jobs/`, {
         method: "POST",
         headers: headers,
         body: formData
@@ -69,7 +69,7 @@ const checkConversionJob = async (fileId: number): Promise < any > => {
     const headers = {
         "Authorization": "Basic " + Buffer.from(`${process.env.API_KEY}:`).toString("base64")
     }
-    const response = await fetch(`https://sandbox.zamzar.com/v1/jobs/${fileId}`, {
+    const response = await fetch(`https://${process.env.API_URL_PREFIX}.zamzar.com/v1/jobs/${fileId}`, {
         headers: headers
     });
     return response.json();

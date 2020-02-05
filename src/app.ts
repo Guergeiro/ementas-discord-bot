@@ -1,4 +1,9 @@
-import dotenv from "dotenv";
+if (process.env.NODE_ENV != "production") {
+    const dotenv = require(`dotenv`);
+    dotenv.config({
+        path: `${__dirname}/config.env`
+    });
+}
 import {
     Client,
     Message
@@ -33,10 +38,6 @@ const sendEmentasToChannel = (ementas: Array < Ementa > , message: Message) => {
 
 }
 
-dotenv.config({
-    path: `${__dirname}/config.env`
-});
-
 let ementas: Array < Ementa > = [];
 const client: Client = new Client();
 
@@ -55,7 +56,7 @@ client.once("ready", async () => {
         jobDetails = await checkConversionJob(jobDetails["id"]);
         console.log(jobDetails);
         sleep(5);
-    } while(jobDetails["status"] != "successful");
+    } while (jobDetails["status"] != "successful");
 
     for (const file of jobDetails["target_files"]) {
         console.log(await downloadFile(file["id"], `${__dirname}/${file["name"]}`));
