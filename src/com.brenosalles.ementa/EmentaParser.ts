@@ -1,5 +1,6 @@
-import fs from "fs";
-import csv from "csv-parser";
+import {
+    createReadStream
+} from "fs";
 import {
     Ementa,
     EmentaType
@@ -83,12 +84,13 @@ const parseCsvMenu = (entry: Array < string > ): Ementa => {
     return ementa;
 }
 
-const parseEmenta = (url: string): Promise<Array<Ementa>> => {
-    return new Promise<Array<Ementa>>((resolve, reject) => {
+const parseEmenta = (url: string): Promise < Array < Ementa >> => {
+    return new Promise < Array < Ementa >> ((resolve, reject) => {
         const output: Array < Ementa > = [];
-        const readStream = fs.createReadStream(`${url}`);
+        const readStream = createReadStream(`${url}`);
 
         readStream.pipe(csv()).on("data", (entry) => {
+            console.log(entry);
             if (entry[0].length == 0) {
                 return;
             }
@@ -105,13 +107,23 @@ const parseEmenta = (url: string): Promise<Array<Ementa>> => {
         readStream.on("error", e => {
             reject(e);
         })
-        return readStream.on("end", () => {
+        return readStream.on("close", () => {
             resolve(output);
         });
 
     });
 }
 
+const testEmenta = (fileUrl: string) => {
+
+        const readStream = createReadStream(`${fileUrl}`);
+
+         readStream.pipe(csv()).on("data", entry => {
+             console.log(entry)
+
+        });
+}
 export {
-    parseEmenta
+    parseEmenta,
+    testEmenta
 }
