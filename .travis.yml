@@ -1,0 +1,15 @@
+language:
+  - node_js
+
+node_js:
+  - 12
+
+deploy:
+  provider: heroku
+  api_key: "heroku_api_key"
+  run:
+    - npm run clean
+    - npm install
+    - npm run compile
+    - npm clean-install --only=production
+    - npm run start
