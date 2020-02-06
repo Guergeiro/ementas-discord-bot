@@ -23,6 +23,10 @@ import {
     downloadEmentaPdf
 } from "./com.brenosalles.ementa/EmentaDownloader";
 
+import http from "http";
+
+http.createServer().listen(process.env.PORT || 5000);
+
 const sleep = (n: number) => {
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, n);
 }
