@@ -1,27 +1,16 @@
 language:
-  - node_js
-
+- node_js
 node_js:
-  - 12
-
-before_script:
-  - npm run clean
-  - npm run install
-  - npm run compile
-  - npm clean-install --only=production
-
+- 12
 script:
-  - npm run start
-
-after_script:
-  - npm run clean
-
+- echo "Skipping Tests"
 deploy:
   provider: heroku
-  api_key: "heroku_api_key"
+  api_key:
+    secure: kt7K4g5pCiZQ1mjuMiV8IpKTxmDQ2aszZpdg92dZvxiPlf7YvCMo6C3KcFfLyCJ1HybIyqRtyZKHisBQPaeRqSU/KOEz8r98ACPCzhhHJCwb+42teIn+UqgWt6xRhzviNXY0eFNDhJEOo4ajXMR7Pa40VwFeMdVkZbSJ5I95FJtsjlFcbwKcICV7+cwriefNslTyxuHNTQOWBU7/53J3JvW+hBOdvsrSLo+QQPzucbRk/ELDcz6zIp2kUo8c2XurG58OlK8Y58jjWd4JdbC6T0o2Lu01rYZKUPogEBgZ7JtTL0ErfPeizbhQFCTEVyPcComLYEdxb6dE8X7giNDNtekpn6gRJw62u4sjopsy4nju9jCqkA1VUsRpGz3Cxo6uIW203OHs0QHgZ8XSwMo05vbgy/+YDdlkT9dbK8bfQduu12MHguqdyCJdEW64f7FBXKSN9GQaqyirDJGOJOQzcZJxhFOZchy5HM28Bg9cAoLqhbqtIrzGFIS2zf2QVWk7pfl0bxxTi0WkZ1glP2H/KdkoNaGT0Bx4ig9XhN8je9f4WjsSgYqcJili12AAhhQd+Zw1UyO/LLgKXClyXX66ULUoMuWfejYT6QhjbGt0Ne3kEnloK+HGr72xbpcpIp047HIdQYbLuEbLNKmfLfeY8PmL3AhIdKAbZgmVIHBBpXA=
   run:
-    - npm run clean
-    - npm install
-    - npm run compile
-    - npm clean-install --only=production
-    - npm run start
+  - npm run clean
+  - npm install
+  - npm run compile
+  - npm clean-install --only=production
+  - npm run start
