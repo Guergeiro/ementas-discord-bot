@@ -4,12 +4,9 @@ if (process.env.NODE_ENV != "production") {
     path: `${__dirname}/config.env`
   });
 }
+import fetch from "node-fetch";
 import { Client, Message } from "discord.js";
 import { Ementa } from "./ementas/Ementa";
-
-const sleep = (n: number) => {
-  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, n);
-};
 
 const sendEmentasToChannel = (ementas: Array<Ementa>, message: Message) => {
   if (ementas.length == 0) {
@@ -27,7 +24,18 @@ const client: Client = new Client();
 client.once("ready", async () => {
   const response = await fetch("https://ementas-api.herokuapp.com/ementas");
 
-  ementas = await response.json();
+  (await response.json()).map((obj: any) => {
+    const ementa: Ementa = new Ementa(
+      new Date(obj["date"]),
+      obj["type"],
+      obj["sopa"],
+      obj["carne"],
+      obj["peixe"],
+      obj["dieta"],
+      obj["vegetariano"]
+    );
+    ementas.push(ementa);
+  });
 });
 
 client.on("message", message => {
