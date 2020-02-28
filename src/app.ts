@@ -5,16 +5,7 @@ if (process.env.NODE_ENV != "production") {
   });
 }
 import { Client, Message } from "discord.js";
-import { Ementa } from "./com.brenosalles.ementa/Ementa";
-import { parseEmenta } from "./com.brenosalles.ementa/EmentaParser";
-import {
-  downloadFile,
-  startConversionJob,
-  checkConversionJob,
-  getAllFiles,
-  deleteFile,
-  downloadEmentaPdf
-} from "./com.brenosalles.ementa/EmentaDownloader";
+import { Ementa } from "./ementas/Ementa";
 
 const sleep = (n: number) => {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, n);
@@ -34,27 +25,9 @@ let ementas: Array<Ementa> = [];
 const client: Client = new Client();
 
 client.once("ready", async () => {
-  const allFiles: Array<any> = (await getAllFiles())["data"];
+  const response = await fetch("https://ementas-api.herokuapp.com/ementas");
 
-  // Finds newest .xlsx file
-  const newestFile: any = allFiles.reduce(
-    (previous: any, current: any): any => {
-      if (current["format"] != "xlsx") {
-        // Wrong format
-        return previous;
-      }
-      const previousDate: Date = new Date(previous["created_at"]);
-      const currentDate: Date = new Date(current["created_at"]);
-      return previousDate.getTime() > currentDate.getTime()
-        ? previous
-        : current;
-    }
-  );
-
-  // Downloads new file
-  await downloadFile(newestFile["id"], `${__dirname}/${newestFile["name"]}`);
-
-  ementas = parseEmenta(`${__dirname}/ESTGV.xlsx`);
+  ementas = await response.json();
 });
 
 client.on("message", message => {
