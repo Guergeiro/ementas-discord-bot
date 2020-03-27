@@ -50,6 +50,9 @@ client.on("message", (message) => {
     if (message.content.startsWith("!") === false) {
         return;
     }
+    if (message.guild == null) {
+        return;
+    }
     const args: Array<string> = message.content.slice("!".length).split(/ +/);
     const commandName: string = (<string>args.shift()).toLowerCase();
 
