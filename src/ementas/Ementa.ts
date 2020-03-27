@@ -1,6 +1,4 @@
-import {
-    EmentaType
-} from "./EmentaTypeEnum";
+import { EmentaType } from "./EmentaTypeEnum";
 
 class Ementa {
     // Attributes
@@ -84,7 +82,8 @@ class Ementa {
 
     // String to String
     toString(): string {
-        let output: string = `**== ${this.type == EmentaType.LUNCH ? "Almoço" : "Jantar"} ${this.date.getUTCDate()}-${this.date.getUTCMonth() + 1}-${this.date.getUTCFullYear()} ==**`;
+        let output: string = `**== ${this.type == EmentaType.LUNCH ? "Almoço" : "Jantar"} ${this.date.getUTCDate()}-${this.date.getUTCMonth() +
+            1}-${this.date.getUTCFullYear()} ==**`;
         output += `\n*Sopa:* ${this.sopa}`;
         output += `\n*Carne:* ${this.carne}`;
         output += `\n*Peixe:* ${this.peixe}`;
@@ -94,7 +93,4 @@ class Ementa {
     }
 }
 
-export {
-    Ementa,
-    EmentaType
-};
+export { Ementa, EmentaType };
